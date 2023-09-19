@@ -23,7 +23,6 @@ public class DataController : ControllerBase
 
 
     [HttpPost]
-    
     public async Task<IActionResult> Set([FromBody] string data)
     {
         try

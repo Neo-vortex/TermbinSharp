@@ -20,11 +20,7 @@ public class SetCommandHandler : IRequestHandler<SetCommand, OneOf<string, Excep
                     return new Exception("checksum failed");
                 }
                 var checksum = Convert.ToHexString(result);
-                if (!File.Exists(Path.Combine(Environment.CurrentDirectory, "Data", checksum)))
-                {
-                    File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "Data", checksum),
-                        request.Data);
-                }
+                SaveData(request, checksum);
                 return checksum;
             }
             catch (Exception e)
@@ -33,5 +29,14 @@ public class SetCommandHandler : IRequestHandler<SetCommand, OneOf<string, Excep
             }
         }, cancellationToken);
 
+    }
+
+    private static void SaveData(SetCommand request, string checksum)
+    {
+        if (!File.Exists(Path.Combine(Environment.CurrentDirectory, "Data", checksum)))
+        {
+            File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "Data", checksum),
+                request.Data);
+        }
     }
 }

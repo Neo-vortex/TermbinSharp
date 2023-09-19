@@ -13,11 +13,12 @@ builder.Services.AddControllers(options =>
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(typeof(Program).Assembly));
-builder.Services.AddMemoryCache();
 builder.Services.AddOutputCache(options =>
 {
     options.AddBasePolicy(builder => 
-        builder.Expire(TimeSpan.FromSeconds(3600)));
+        builder
+            .Expire(TimeSpan.FromSeconds(3600))
+            .SetVaryByRouteValue("hash"));
 });
 builder.Services.AddResponseCompression(options =>
 {
@@ -49,5 +50,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 System.IO.Directory.CreateDirectory(Path.Combine(Environment.CurrentDirectory, "Data"));
+
+app.UseOutputCache();
 
 app.Run();
