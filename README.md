@@ -7,7 +7,7 @@ termbinSharp is a high-performance server application that mimics the functional
 
 * Caching: termbinSharp caches uploaded text snippets, reducing server load and improving response times.
 
-* Secure: Designed with security in mind, ensuring the privacy and integrity of shared text.
+* Secure: Designed with security in mind, ensuring the integrity of shared text.
   
 * No Database: Everything is saved and read via files.
 
