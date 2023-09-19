@@ -21,12 +21,13 @@ public class DataController : ControllerBase
 
 
     [HttpPost]
+    [OutputCache]
     public async Task<IActionResult> Set([FromBody] string data)
     {
         try
         {
             var result = await _mediator.Send(new SetCommand(data));
-            if (result.IsT0)
+            if (result.IsSuccess)
                 return Ok(
                     $"{_httpContextAccessor.HttpContext?.Request?.Scheme}://{_httpContextAccessor.HttpContext?.Request?.Host}/{result.ActualValue}");
 

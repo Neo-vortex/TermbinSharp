@@ -11,6 +11,5 @@ public class Data
 
     public string DataString { get; set; }
     public string URL { get; set; }
-
     public byte[] Checksum { set; get; }
 }

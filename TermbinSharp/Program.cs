@@ -17,7 +17,8 @@ builder.Services.AddOutputCache(options =>
     options.AddBasePolicy(builder =>
         builder
             .Expire(TimeSpan.FromSeconds(3600))
-            .SetVaryByRouteValue("hash"));
+            .SetVaryByRouteValue("hash")
+        );
 });
 builder.Services.AddResponseCompression(options =>
 {
