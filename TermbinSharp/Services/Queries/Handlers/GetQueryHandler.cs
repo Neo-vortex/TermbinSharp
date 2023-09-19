@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using MediatR;
 using Microsoft.Extensions.Caching.Memory;
 using OneOf;
@@ -27,6 +28,13 @@ public class GetQueryHandler : IRequestHandler<GetQuery , OneOf<string,Exception
 
             cacheValue = await File.ReadAllTextAsync(Path.Combine(Environment.CurrentDirectory, "Data", request.RequestedHash), cancellationToken);
             _memoryCache.Set(request.RequestedHash, cacheValue, CacheEntryOptions);
+
+            var hashedResult = Convert.ToHexString(SHA512.HashData(System.Text.Encoding.UTF8.GetBytes(cacheValue)));
+
+            if (hashedResult != request.RequestedHash)
+            {
+                throw new Exception("data is corrupted");
+            }
             return cacheValue;
         }
         else
