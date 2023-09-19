@@ -7,7 +7,7 @@ termbinSharp is a high-performance server application that mimics the functional
 
 * Caching: termbinSharp caches uploaded text snippets, reducing server load and improving response times.
 
-* Secure: Designed with security in mind, ensuring the privacy and integrity of shared text.
+* Secure: Designed with security in mind, ensuring the integrity of shared text.
   
 * No Database: Everything is saved and read via files.
 
@@ -22,10 +22,13 @@ curl -X POST -H "Content-Type: application/json" -d "This is my text snippet" ht
 ```
 Replace http://your-server-address with the actual address where your TermbinSharp server is running. Upon successful upload, the server will respond with a 200 OK status with the corresponding direct url to retrive the data later.
 
-Retrieving Text Snippets
+### Retrieving Text Snippets
 To retrieve a previously uploaded text snippet, you can make a GET request to the / endpoint followed by the snippet's unique identifier (path). For example:
 
 ```
 curl http://your-server-address/abc123
 ```
 Replace abc123 with the actual unique identifier of the text snippet you want to retrieve. If the snippet exists, the server will respond with a 200 OK status and the content of the text snippet in the response body.
+
+### docker
+you can use docker file to build and run the project
