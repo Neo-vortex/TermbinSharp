@@ -1,42 +1,50 @@
 using System.Security.Cryptography;
-using System.Text;
-using MediatR;
+using Mediator;
+using Microsoft.EntityFrameworkCore;
 using OneOf;
+using TermbinSharp.Models;
 
 namespace TermbinSharp.Services.Commands.Handlers;
 
-public class SetCommandHandler : IRequestHandler<SetCommand, OneOf<string, Exception>>
+public class SetCommandHandler : IRequestHandler<SetCommand,RequestResult<string>>
 {
-    public Task<OneOf<string, Exception>> Handle(SetCommand request, CancellationToken cancellationToken)
-    {
-        return Task.Run<OneOf<string, Exception>>(() =>
-        {
-            try
-            {
-                Span<byte> result = stackalloc byte[64];
-                var checksumDone = SHA512.TryHashData(Encoding.UTF8.GetBytes(request.Data), result, out _);
-                if (!checksumDone)
-                {
-                    return new Exception("checksum failed");
-                }
-                var checksum = Convert.ToHexString(result);
-                SaveData(request, checksum);
-                return checksum;
-            }
-            catch (Exception e)
-            {
-                return e;
-            }
-        }, cancellationToken);
 
+    private readonly ApplicationDbContext _applicationDbContext;
+
+    public SetCommandHandler(ApplicationDbContext applicationDbContext)
+    {
+        _applicationDbContext = applicationDbContext;
     }
 
-    private static void SaveData(SetCommand request, string checksum)
+    public async ValueTask <RequestResult<string>> Handle(SetCommand request, CancellationToken cancellationToken)
     {
-        if (!File.Exists(Path.Combine(Environment.CurrentDirectory, "Data", checksum)))
+        try
         {
-            File.WriteAllText(Path.Combine(Environment.CurrentDirectory, "Data", checksum),
-                request.Data);
+            if (string.IsNullOrEmpty(request.Data)) return new Exception("Data is empty");
+
+            var data = await _applicationDbContext.Data.FirstOrDefaultAsync(data => data.DataString == request.Data, cancellationToken: cancellationToken);
+
+            if (data != null)
+            {
+                return data.URL;
+            }
+            
+            var randomUrl = Path.GetRandomFileName().Replace(".", "");
+            await _applicationDbContext.Data.AddAsync(new Data()
+            {
+                DataString = request.Data,
+                URL = randomUrl,
+                Checksum = SHA512.HashData(System.Text.Encoding.UTF8.GetBytes(request.Data))
+            }, cancellationToken);
+            
+            await _applicationDbContext.SaveChangesAsync(cancellationToken);
+            return randomUrl;
+        }
+        catch (Exception e)
+        {
+            return e;
         }
     }
+
+
 }

@@ -1,26 +1,45 @@
+using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Text;
-using MediatR;
-using Microsoft.Extensions.Caching.Memory;
-using OneOf;
+using Mediator;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query.Internal;
+using TermbinSharp.Models;
 
 namespace TermbinSharp.Services.Queries.Handlers;
 
-public class GetQueryHandler : IRequestHandler<GetQuery, OneOf<string, Exception>>
+public class GetQueryHandler : IRequestHandler<GetQuery, RequestResult<string>>
 {
+    private readonly ApplicationDbContext _applicationDbContext;
+
     
+    private static Func<ApplicationDbContext, string, Task<Data?>> FirstOrDefault_CompiledQuery =
+        EF.CompileAsyncQuery((ApplicationDbContext _appDbContext, string url) => _appDbContext.Data.FirstOrDefault(n => n.URL == url));
 
-    public async Task<OneOf<string, Exception>> Handle(GetQuery request, CancellationToken cancellationToken)
+    public GetQueryHandler(ApplicationDbContext applicationDbContext)
     {
-        if (!File.Exists(Path.Combine(Environment.CurrentDirectory, "Data", request.RequestedHash)))
-            return new Exception("no such a data");
+        _applicationDbContext = applicationDbContext;
+    }
 
-        var value = await File.ReadAllTextAsync(Path.Combine(Environment.CurrentDirectory, "Data", request.RequestedHash),
-            cancellationToken);
-        var hashedResult = Convert.ToHexString(SHA512.HashData(Encoding.UTF8.GetBytes(value)));
-        if (hashedResult != request.RequestedHash) throw new Exception("data is corrupted");
+    public async  ValueTask <RequestResult<string>> Handle(GetQuery request, CancellationToken cancellationToken)
+    {
 
-        return value;
 
+        try
+        {
+            
+            //var value = await _applicationDbContext.Data.FirstOrDefaultAsync(data => data.URL == request.RequestedUrl, CancellationToken.None);
+            var value =  await FirstOrDefault_CompiledQuery(_applicationDbContext, request.RequestedUrl);
+            if (value == null) return new Exception("No data found");
+
+            var dataValid = SHA512.HashData(Encoding.UTF8.GetBytes(value.DataString)).SequenceEqual(value.Checksum) ;
+            if (!dataValid) return new Exception("Data is not valid");
+
+            return value.DataString;
+        }
+        catch (Exception e)
+        {
+            return e;
+        }
     }
 }

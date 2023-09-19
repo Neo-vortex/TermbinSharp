@@ -1,15 +1,16 @@
-using MediatR;
+using Mediator;
 using OneOf;
+using TermbinSharp.Models;
 
 namespace TermbinSharp.Services.Queries;
 
-public class GetQuery : IRequest<OneOf<string,Exception>>
+public class GetQuery : IRequest<RequestResult<string>>
 {
     public GetQuery(string requestedHash)
     {
-        RequestedHash = requestedHash;
+        RequestedUrl = requestedHash;
     }
 
-    public string RequestedHash { get; set; }
+    public string RequestedUrl { get; set; }
     
 }

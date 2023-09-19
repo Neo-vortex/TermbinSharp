@@ -1,4 +1,4 @@
-using MediatR;
+using Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OutputCaching;
 using TermbinSharp.Services.Commands;
@@ -28,16 +28,16 @@ public class DataController : ControllerBase
         try
         {
             var result = await _mediator.Send(new SetCommand(data));
-            
-            var request = _httpContextAccessor.HttpContext?.Request;
-            var domain = $"{request?.Scheme}://{request.Host}";
-            if (result.IsT0) return Ok(domain + "/" + result.AsT0);
+            if (result.IsT0)
+            {
+                return Ok($"{_httpContextAccessor.HttpContext?.Request?.Scheme}://{_httpContextAccessor.HttpContext?.Request?.Host}/{result.ActualValue}");
+            }
 
-            return BadRequest(result.AsT1.Message);
+            return BadRequest(result.Error.Message);
         }
         catch (Exception e)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError);
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
     
@@ -49,13 +49,14 @@ public class DataController : ControllerBase
         try
         {
             var result = await _mediator.Send(new GetQuery(path));
-            if (result.IsT0) return Ok(result.AsT0);
+            
+            if (result.IsSuccess) return Ok(result.ActualValue);
 
-            return BadRequest(result.AsT1.Message);
+            return BadRequest(result.Error.Message);
         }
         catch (Exception e)
         {
-            return StatusCode(StatusCodes.Status500InternalServerError);
+            return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
 
