@@ -1,5 +1,4 @@
 using Mediator;
-using OneOf;
 using TermbinSharp.Models;
 
 namespace TermbinSharp.Services.Queries;
@@ -12,5 +11,4 @@ public class GetQuery : IRequest<RequestResult<string>>
     }
 
     public string RequestedUrl { get; set; }
-    
 }

@@ -1,13 +1,16 @@
 using System.Security.Cryptography;
+using System.Text;
 using Mediator;
 using Microsoft.EntityFrameworkCore;
-using OneOf;
 using TermbinSharp.Models;
 
 namespace TermbinSharp.Services.Commands.Handlers;
 
-public class SetCommandHandler : IRequestHandler<SetCommand,RequestResult<string>>
+public class SetCommandHandler : IRequestHandler<SetCommand, RequestResult<string>>
 {
+    private static readonly Func<ApplicationDbContext, string, Task<Data?>> FirstOrDefaultCompiledQuery =
+        EF.CompileAsyncQuery((ApplicationDbContext _appDbContext, string data) =>
+            _appDbContext.Data.FirstOrDefault(n => n.DataString == data));
 
     private readonly ApplicationDbContext _applicationDbContext;
 
@@ -16,27 +19,24 @@ public class SetCommandHandler : IRequestHandler<SetCommand,RequestResult<string
         _applicationDbContext = applicationDbContext;
     }
 
-    public async ValueTask <RequestResult<string>> Handle(SetCommand request, CancellationToken cancellationToken)
+    public async ValueTask<RequestResult<string>> Handle(SetCommand request, CancellationToken cancellationToken)
     {
         try
         {
             if (string.IsNullOrEmpty(request.Data)) return new Exception("Data is empty");
 
-            var data = await _applicationDbContext.Data.FirstOrDefaultAsync(data => data.DataString == request.Data, cancellationToken: cancellationToken);
+            var data = await FirstOrDefaultCompiledQuery(_applicationDbContext, request.Data);
 
-            if (data != null)
-            {
-                return data.URL;
-            }
-            
+            if (data != null) return data.URL;
+
             var randomUrl = Path.GetRandomFileName().Replace(".", "");
-            await _applicationDbContext.Data.AddAsync(new Data()
+            await _applicationDbContext.Data.AddAsync(new Data
             {
                 DataString = request.Data,
                 URL = randomUrl,
-                Checksum = SHA512.HashData(System.Text.Encoding.UTF8.GetBytes(request.Data))
+                Checksum = SHA512.HashData(Encoding.UTF8.GetBytes(request.Data))
             }, cancellationToken);
-            
+
             await _applicationDbContext.SaveChangesAsync(cancellationToken);
             return randomUrl;
         }
@@ -45,6 +45,4 @@ public class SetCommandHandler : IRequestHandler<SetCommand,RequestResult<string
             return e;
         }
     }
-
-
 }

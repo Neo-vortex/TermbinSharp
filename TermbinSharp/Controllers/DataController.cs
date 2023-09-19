@@ -6,14 +6,12 @@ using TermbinSharp.Services.Queries;
 
 namespace TermbinSharp.Controllers;
 
-
 [ApiController]
 [Route("[controller]/[action]")]
-
 public class DataController : ControllerBase
 {
-    private readonly IMediator _mediator;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IMediator _mediator;
 
     public DataController(IMediator mediator, IHttpContextAccessor httpContextAccessor)
     {
@@ -29,9 +27,8 @@ public class DataController : ControllerBase
         {
             var result = await _mediator.Send(new SetCommand(data));
             if (result.IsT0)
-            {
-                return Ok($"{_httpContextAccessor.HttpContext?.Request?.Scheme}://{_httpContextAccessor.HttpContext?.Request?.Host}/{result.ActualValue}");
-            }
+                return Ok(
+                    $"{_httpContextAccessor.HttpContext?.Request?.Scheme}://{_httpContextAccessor.HttpContext?.Request?.Host}/{result.ActualValue}");
 
             return BadRequest(result.Error.Message);
         }
@@ -40,7 +37,7 @@ public class DataController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
-    
+
     [HttpGet]
     [Route("/{path}")]
     [OutputCache]
@@ -49,7 +46,7 @@ public class DataController : ControllerBase
         try
         {
             var result = await _mediator.Send(new GetQuery(path));
-            
+
             if (result.IsSuccess) return Ok(result.ActualValue);
 
             return BadRequest(result.Error.Message);
@@ -59,5 +56,4 @@ public class DataController : ControllerBase
             return StatusCode(StatusCodes.Status500InternalServerError, e.Message);
         }
     }
-
 }

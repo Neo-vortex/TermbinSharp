@@ -1,12 +1,10 @@
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
-using TermbinSharp;
 using TermbinSharp.Models;
 using TermbinSharp.Utilities;
 
 var builder = WebApplication.CreateBuilder(args);
-
 
 
 builder.Services.AddControllers(options =>
@@ -16,7 +14,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddMediator(options => { options.ServiceLifetime = ServiceLifetime.Transient; });
 builder.Services.AddOutputCache(options =>
 {
-    options.AddBasePolicy(builder => 
+    options.AddBasePolicy(builder =>
         builder
             .Expire(TimeSpan.FromSeconds(3600))
             .SetVaryByRouteValue("hash"));
@@ -40,8 +38,8 @@ app.UseResponseCompression();
 app.UseCors(x => x
     .AllowAnyMethod()
     .AllowAnyHeader()
-    .SetIsOriginAllowed( origin => true) 
-    .AllowCredentials()); 
+    .SetIsOriginAllowed(origin => true)
+    .AllowCredentials());
 
 if (app.Environment.IsDevelopment())
 {
