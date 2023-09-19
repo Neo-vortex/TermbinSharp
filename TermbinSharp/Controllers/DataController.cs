@@ -21,7 +21,6 @@ public class DataController : ControllerBase
 
 
     [HttpPost]
-    [OutputCache]
     public async Task<IActionResult> Set([FromBody] string data)
     {
         try
