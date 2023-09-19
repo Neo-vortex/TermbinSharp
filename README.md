@@ -9,7 +9,7 @@ termbinSharp is a high-performance server application that mimics the functional
 
 * Secure: Designed with security in mind, ensuring the integrity of shared text.
   
-* No Database: Everything is saved and read via files.
+* SQLITE : Everything is saved and read via SQLITE.
 
 ## Using the TermbinSharp Server
 TermbinSharp provides a straightforward API for uploading and retrieving text snippets. You can interact with the server using HTTP requests. Here's a guide on how to use the TermbinSharp server:
