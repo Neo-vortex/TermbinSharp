@@ -10,7 +10,9 @@ public class GetQueryHandler : IRequestHandler<GetQuery, RequestResult<string>>
 {
     private static readonly Func<ApplicationDbContext, string, Task<Data?>> FirstOrDefaultCompiledQuery =
         EF.CompileAsyncQuery((ApplicationDbContext _appDbContext, string url) =>
-            _appDbContext.Data.FirstOrDefault(n => n.URL == url));
+            _appDbContext.Data
+                .AsNoTracking()
+                .FirstOrDefault(n => n.URL == url));
 
     private readonly ApplicationDbContext _applicationDbContext;
 

@@ -10,7 +10,8 @@ public class SetCommandHandler : IRequestHandler<SetCommand, RequestResult<strin
 {
     private static readonly Func<ApplicationDbContext, string, Task<Data?>> FirstOrDefaultCompiledQuery =
         EF.CompileAsyncQuery((ApplicationDbContext _appDbContext, string data) =>
-            _appDbContext.Data.FirstOrDefault(n => n.DataString == data));
+            _appDbContext.Data.AsNoTracking().FirstOrDefault(n => n.DataString == data));
+    
 
     private readonly ApplicationDbContext _applicationDbContext;
 
@@ -36,7 +37,6 @@ public class SetCommandHandler : IRequestHandler<SetCommand, RequestResult<strin
                 URL = randomUrl,
                 Checksum = SHA512.HashData(Encoding.UTF8.GetBytes(request.Data))
             }, cancellationToken);
-
             await _applicationDbContext.SaveChangesAsync(cancellationToken);
             return randomUrl;
         }
