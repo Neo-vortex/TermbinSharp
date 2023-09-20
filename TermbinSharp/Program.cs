@@ -54,8 +54,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-Directory.CreateDirectory(Path.Combine(Environment.CurrentDirectory, "Data"));
-
 app.UseOutputCache();
 
 var scope = app.Services.CreateScope();

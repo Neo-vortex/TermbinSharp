@@ -10,7 +10,9 @@ public class SetCommandHandler : IRequestHandler<SetCommand, RequestResult<strin
 {
     private static readonly Func<ApplicationDbContext, string, Task<Data?>> FirstOrDefaultCompiledQuery =
         EF.CompileAsyncQuery((ApplicationDbContext _appDbContext, string data) =>
-            _appDbContext.Data.AsNoTracking().FirstOrDefault(n => n.DataString == data));
+            _appDbContext.Data
+                .AsNoTracking()
+                .FirstOrDefault(n => n.DataString == data));
     
 
     private readonly ApplicationDbContext _applicationDbContext;
