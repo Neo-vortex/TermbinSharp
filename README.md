@@ -9,7 +9,9 @@ termbinSharp is a high-performance server application that mimics the functional
 
 * Secure: Designed with security in mind, ensuring the integrity of shared text.
   
-* SQLITE : Everything is saved and read via SQLITE.
+* SQLITE: Everything is saved and read via SQLITE.
+
+* No Duplication: if a data is set before it will return the url for the already set data
 
 
 *** If you want the absolute best performance you can set `useInMemoryDatabase` env variable to force the server to use in memory database, it won't be persistent but significantly faster***
