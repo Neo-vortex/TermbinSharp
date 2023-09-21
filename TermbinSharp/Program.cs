@@ -30,7 +30,20 @@ builder.Services.AddResponseCompression(options =>
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddDbContext<ApplicationDbContext>(optionsBuilder =>
 {
-    optionsBuilder.UseSqlite("Data Source=./data.db");
+    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+    {
+        optionsBuilder.EnableDetailedErrors();
+        optionsBuilder.EnableSensitiveDataLogging();
+    }
+    if (Environment.GetEnvironmentVariable("useInMemoryDatabase") == "true")
+    {
+        optionsBuilder.UseInMemoryDatabase("data.db");
+    }
+    else
+    {
+        optionsBuilder.UseSqlite("Data Source=./data.db");
+
+    }
 });
 
 var app = builder.Build();
